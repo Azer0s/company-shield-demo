@@ -8,6 +8,7 @@ import lombok.extern.java.Log;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.Environment;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
 
     private final UserRepository userRepository;
     private final Environment environment;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -29,9 +31,11 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
             return;
         }
 
+        var password = passwordEncoder.encode("admin");
+
         var adminUser = UserEntity.builder()
                 .username("admin")
-                .password("admin")
+                .password(password)
                 .roles(List.of(UserRole.ADMIN))
                 .balance(BigDecimal.ZERO)
                 .disabled(false)

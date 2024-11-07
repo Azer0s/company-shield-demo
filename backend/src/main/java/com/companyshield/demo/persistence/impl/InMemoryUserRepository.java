@@ -22,7 +22,7 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String id) {
+    public Optional<UserEntity> findById(String id) {
         var user = new AtomicReference<Optional<UserEntity>>(empty());
         users.computeIfPresent(id, (_, value) -> {
             value.lock().readLock().lock();
@@ -31,6 +31,23 @@ public class InMemoryUserRepository implements UserRepository {
                 return value;
             } finally {
                 value.lock().readLock().unlock();
+            }
+        });
+
+        return user.get();
+    }
+
+    @Override
+    public Optional<UserEntity> findByUsername(String username) {
+        var user = new AtomicReference<Optional<UserEntity>>(empty());
+        users.values().forEach(userObject -> {
+            userObject.lock().readLock().lock();
+            try {
+                if (userObject.userEntity().getUsername().equals(username)) {
+                    user.set(Optional.of(userObject.userEntity()));
+                }
+            } finally {
+                userObject.lock().readLock().unlock();
             }
         });
 

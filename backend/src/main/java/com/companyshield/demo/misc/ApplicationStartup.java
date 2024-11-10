@@ -2,7 +2,10 @@ package com.companyshield.demo.misc;
 
 import com.companyshield.demo.domain.UserEntity;
 import com.companyshield.demo.domain.UserRole;
+import com.companyshield.demo.domain.transactional.CreateUserRequest;
 import com.companyshield.demo.persistence.UserRepository;
+import com.companyshield.demo.service.TransactionService;
+import com.companyshield.demo.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -20,9 +23,25 @@ import java.util.List;
 @Log
 public class ApplicationStartup implements ApplicationListener<ApplicationReadyEvent> {
 
+    private final UserService userService;
     private final UserRepository userRepository;
+    private final TransactionService transactionService;
     private final Environment environment;
-    private final PasswordEncoder passwordEncoder;
+
+    private void createUser(String username, String password, UserRole role) {
+        if (!userService.createUser(new CreateUserRequest(username, password, List.of(role)))) {
+            System.exit(-1);
+        }
+        log.info("User " + username + " created successfully");
+
+        if (role != UserRole.ADMIN) {
+            var user = userRepository.findByUsername(username).orElseThrow();
+            if (!transactionService.deposit(user.getId(), BigDecimal.valueOf(1000))) {
+                System.exit(-1);
+            }
+            log.info("User " + username + " deposited $1000 successfully");
+        }
+    }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -31,20 +50,12 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
             return;
         }
 
-        var password = passwordEncoder.encode("admin");
+        createUser("admin", "admin", UserRole.ADMIN);
 
-        var adminUser = UserEntity.builder()
-                .username("admin")
-                .password(password)
-                .roles(List.of(UserRole.ADMIN))
-                .balance(BigDecimal.ZERO)
-                .disabled(false)
-                .build();
-
-        if (!userRepository.create(adminUser)) {
-            System.exit(-1);
-        }
-
-        log.info("Admin user created successfully");
+        createUser("alice", "alice", UserRole.USER);
+        createUser("bob", "bob", UserRole.USER);
+        createUser("jane", "jane", UserRole.USER);
+        createUser("john", "john", UserRole.USER);
+        createUser("joe", "joe", UserRole.USER);
     }
 }

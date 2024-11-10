@@ -6,9 +6,7 @@ import com.companyshield.demo.service.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @Controller
@@ -19,5 +17,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginUserResponse> login(@RequestBody LoginUserRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity verify() {
+        return ResponseEntity.ok().build();
     }
 }

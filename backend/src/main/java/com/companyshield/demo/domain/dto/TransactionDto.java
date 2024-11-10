@@ -1,17 +1,14 @@
-package com.companyshield.demo.domain;
+package com.companyshield.demo.domain.dto;
 
+import com.companyshield.demo.domain.TransactionType;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Data
-public class TransactionEntity {
+public class TransactionDto {
     private Long timestamp;
     private String fromId;
     private String toId;

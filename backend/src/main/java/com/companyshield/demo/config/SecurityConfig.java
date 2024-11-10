@@ -4,9 +4,12 @@ import com.companyshield.demo.auth.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,6 +22,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @EnableMethodSecurity
+@EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
@@ -28,20 +32,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors((cors) -> cors.configurationSource(request -> {
-                    var corsConfiguration = new CorsConfiguration();
-                    corsConfiguration.setAllowedOrigins(List.of("*"));
-                    corsConfiguration.setAllowedMethods(List.of("*"));
-                    corsConfiguration.setAllowedHeaders(List.of("*"));
-                    return corsConfiguration;
-                }))
-                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers("/auth/login").permitAll())
-                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers("/actuator/**").permitAll())
-                .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.anyRequest().authenticated())
-                .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers("/auth/login").permitAll())
+            .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.requestMatchers("/actuator/**").permitAll())
+            .authorizeHttpRequests((authorizeRequests) -> authorizeRequests.anyRequest().authenticated())
+            .sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authenticationProvider(authenticationProvider)
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
 }

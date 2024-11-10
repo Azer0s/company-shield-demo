@@ -1,0 +1,17 @@
+.withdrawButton {
+    padding: 0.5em 0.5em;
+    background-color: unset;
+    color: red;
+    font-size: 2rem;
+    font-weight: bolder;
+    text-align: center;
+}
+
+.depositButton {
+    padding: 0.5em 0.5em;
+    background-color: unset;
+    color: green;
+    font-size: 2rem;
+    font-weight: bolder;
+    text-align: center;
+}

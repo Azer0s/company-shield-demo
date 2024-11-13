@@ -88,6 +88,8 @@ public class InMemoryUserRepository implements UserRepository {
             return Optional.of(new IllegalArgumentException("Not all users exist"));
         }
 
+        toLock.sort(String::compareTo);
+
         try {
             toLock.forEach(id -> users.get(id).lock().writeLock().lock());
             return callback.call();
